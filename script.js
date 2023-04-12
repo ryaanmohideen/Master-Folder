@@ -1,73 +1,51 @@
 import { TMDB_API_KEY } from "./key.js";
 
-console.log({ TMDB_API_KEY });
+const getMovie = async () => {
+  const movieSelect = document.getElementById("movie");
+  const selectedMovieId = movieSelect.value;
 
-const getTMDBData = async (url) => {
-  return (await axios.get(url)).data;
-};
-
-const createMovieTile = (id, poster, title, date, description) => {
-  const tile = document.createElement("div");
-  const details = document.createElement("div");
-  const img = document.createElement("img");
-  const h1 = document.createElement("h1");
-  const h3 = document.createElement("h3");
-  const h4 = document.createElement("h4");
-  const buyButton = document.createElement("button");
-  const trailerButton = document.createElement("button");
-
-  tile.classList.add("tile");
-  img.src = `https://image.tmdb.org/t/p/w500/${poster}`;
-  h1.innerText = title;
-  h3.innerText = date;
-  h4.innerText = description;
-  buyButton.innerText = "Buy";
-  trailerButton.innerText = "Trailer";
-
-  buyButton.addEventListener("click", () => {
-    cartContents.add(id);
-    const cart = document.getElementById("cart");
-    cart.innerHTML = `Your cart contains ${cartContents.size} movies`;
-  });
-
-  trailerButton.addEventListener("click", async () => {
-    const trailersData = await getTMDBData(
-      `https://api.themoviedb.org/3//movie/${id}/videos?api_key=${TMDB_API_KEY}&language=en-US&adult=false`
-    );
-
-    const trailer = trailersData.results.filter((trailer) => {
-      return trailer.type === "Trailer";
-    });
-
-    !trailer.length
-      ? alert("Sorry! No trailers for this film.")
-      : window.open(`https://www.youtube.com/watch?v=${trailer.at(0).key}`);
-  });
-
-  details.append(h1);
-  details.append(h3);
-  details.append(h4);
-
-  tile.append(img);
-  tile.append(details);
-  tile.append(buyButton);
-  tile.append(trailerButton);
-
-  return tile;
-};
-
-let movieData = await getTMDBData(
-  `https://api.themoviedb.org/3//movie/top_rated?api_key=${TMDB_API_KEY}&language=en-US&adult=false`
-);
-const movies = document.getElementById("movies");
-
-movieData.results.forEach((movie) => {
-  const tile = createMovieTile(
-    movie.id,
-    movie.poster_path,
-    movie.title,
-    movie.release_date,
-    movie.overview
+  const response = await axios.get(
+    `https://api.themoviedb.org/3/movie/${selectedMovieId}?api_key=${TMDB_API_KEY}&append_to_response=videos`
   );
-  movies.appendChild(tile);
-});
+  const movieData = response.data;
+
+  const movieDataContainer = document.getElementById("movie-data");
+  movieDataContainer.innerHTML = "";
+
+  const movieTitle = document.createElement("h2");
+  movieTitle.innerText = movieData.title;
+  movieDataContainer.appendChild(movieTitle);
+
+  const moviePoster = document.createElement("img");
+  moviePoster.src = `https://image.tmdb.org/t/p/w500${movieData.poster_path}`;
+  movieDataContainer.appendChild(moviePoster);
+
+  const movieOverview = document.createElement("p");
+  movieOverview.innerText = movieData.overview;
+  movieDataContainer.appendChild(movieOverview);
+
+
+  const trailers = movieData.videos.results.filter(
+    (video) => video.type === "Trailer"
+  );
+
+  if (trailers.length > 0) {
+    const firstTrailer = trailers[0];
+
+    const trailerTitle = document.createElement("h3");
+    trailerTitle.innerText = "Trailer";
+    movieDataContainer.appendChild(trailerTitle);
+
+    const trailerEmbed = document.createElement("iframe");
+    trailerEmbed.src = `https://www.youtube.com/embed/${firstTrailer.key}`;
+    trailerEmbed.width = 560;
+    trailerEmbed.height = 315;
+    trailerEmbed.allowFullscreen = true;
+    movieDataContainer.appendChild(trailerEmbed);
+  }
+
+  return movieDataContainer;
+};
+
+const button = document.querySelector("button");
+button.addEventListener("click", getMovie);
