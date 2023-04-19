@@ -29,7 +29,7 @@ const getMovie = async () => {
   movieOverview.innerText = movieData.overview;
   movieDataContainer.appendChild(movieOverview);
 
-  const releaseDate = document.createElement("p");
+  const releaseDate = document.createElement("h6");
   releaseDate.innerText = `Release Date: ${movieData.release_date}`;
   movieDataContainer.appendChild(releaseDate);
 
@@ -37,20 +37,20 @@ const getMovie = async () => {
     (crew) => crew.job === "Director"
   );
   if (director) {
-    const directorName = document.createElement("p");
+    const directorName = document.createElement("h6");
     directorName.innerText = `Director: ${director.name}`;
     movieDataContainer.appendChild(directorName);
   }
 
-  const runtime = document.createElement("p");
+  const runtime = document.createElement("h6");
   runtime.innerText = `Runtime: ${movieData.runtime} min`;
   movieDataContainer.appendChild(runtime);
 
-  const budget = document.createElement("p");
+  const budget = document.createElement("h6");
   budget.innerText = `Budget: $${movieData.budget}`;
   movieDataContainer.appendChild(budget);
 
-  const revenue = document.createElement("p");
+  const revenue = document.createElement("h6");
   revenue.innerText = `Revenue: $${movieData.revenue}`;
   movieDataContainer.appendChild(revenue);
 
